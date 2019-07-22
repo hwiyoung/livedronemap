@@ -198,3 +198,9 @@ pip-selfcheck.json
 
 
 # End of https://www.gitignore.io/api/python,pycharm
+
+### API KEY ###
+drone/config_mago3d.json
+server/config_mago3d.json
+server/config_webodm.json
+server/__pycache__
