@@ -1,6 +1,11 @@
 import numpy as np
 from numba import jit
 from osgeo import gdal, osr
+from numba.errors import NumbaDeprecationWarning, NumbaPendingDeprecationWarning
+import warnings
+
+# warnings.simplefilter('ignore', category=NumbaDeprecationWarning)
+# warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
 
 @jit(nopython=True)
 def projectedCoord(boundary, boundary_rows, boundary_cols, gsd, eo, ground_height):

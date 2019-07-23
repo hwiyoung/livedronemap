@@ -1,4 +1,4 @@
-import arrow
+# import arrow
 
 
 def create_img_metadata(drone_project_id, data_type, file_name, detected_objects, drone_id, drone_name, parsed_eo):

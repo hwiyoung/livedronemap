@@ -11,7 +11,7 @@ from server.image_processing.img_metadata_generation import create_img_metadata
 from server.image_processing.system_calibration import calibrate
 from clients.webodm import WebODM
 from clients.mago3d import Mago3D
-from drone.drone_image_check import start_image_check
+from drone_image_check import start_image_check
 
 from server.image_processing.orthophoto_generation.Orthophoto import rectify
 
@@ -82,6 +82,7 @@ def ldm_upload(project_id_str):
         }
 
         # Check integrity of uploaded files
+        print('Check integerity')
         for key in ['img', 'eo']:
             if key not in request.files:  # Key check
                 return 'No %s part' % key
@@ -95,6 +96,7 @@ def ldm_upload(project_id_str):
                 return 'Failed to save the uploaded files'
 
         # IPOD chain 1: System calibration
+        print('System calibration')
         parsed_eo = my_drone.preprocess_eo_file(os.path.join(project_path, fname_dict['eo']))
         if not my_drone.pre_calibrated:
             omega, phi, kappa = calibrate(parsed_eo[3], parsed_eo[4], parsed_eo[5], my_drone.ipod_params['R_CB'])
@@ -103,7 +105,9 @@ def ldm_upload(project_id_str):
             parsed_eo[5] = kappa
 
         # IPOD chain 2: Individual ortho-image generation
+        print('Orthophoto')
         fname_dict['img_rectified'] = fname_dict['img'].split('.')[0] + '.tif'
+        print(fname_dict)
         bbox_wkt = rectify(
             project_path=project_path,
             img_fname=fname_dict['img'],
@@ -131,13 +135,17 @@ def ldm_upload(project_id_str):
 
         print(img_metadata)
 
-        # Mago3D에 전송
-        res = mago3d.upload(
-            img_rectified_path=os.path.join(project_path, fname_dict['img_rectified']),
-            img_metadata=img_metadata
-        )
+        import shutil
+        shutil.copy(os.path.join(project_path, fname_dict['img_rectified']),
+                    os.path.join('//192.168.0.2/Sandbox', fname_dict['img_rectified']))
 
-        print(res.text)
+        # # Mago3D에 전송
+        # res = mago3d.upload(
+        #     img_rectified_path=os.path.join(project_path, fname_dict['img_rectified']),
+        #     img_metadata=img_metadata
+        # )
+        #
+        # print(res.text)
 
         return 'Image upload and IPOD chain complete'
 
