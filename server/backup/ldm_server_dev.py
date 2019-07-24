@@ -8,9 +8,10 @@ from werkzeug.utils import secure_filename
 
 from server import config_flask
 from server.image_processing.img_metadata_generation import create_img_metadata
+from server.image_processing.system_calibration import calibrate
 from clients.webodm import WebODM
 from clients.mago3d import Mago3D
-# from drone.drone_image_check import start_image_check
+from drone_image_check import start_image_check
 
 from server.image_processing.orthophoto_generation.Orthophoto import rectify
 
@@ -28,12 +29,9 @@ mago3d = Mago3D(
     api_key=app.config['MAGO3D_CONFIG']['api_key']
 )
 
-# from server.my_drones import TiLabETRI
-# my_drone = TiLabETRI(pre_calibrated=True)
-
-from server.my_drones import DJIMavic
-my_drone = DJIMavic(pre_calibrated=True)
-
+from server.my_drones import DJIMavic as My_drone
+# my_drone = My_drone(pre_calibrated=False)
+my_drone = My_drone(pre_calibrated=True)
 
 def allowed_file(fname):
     return '.' in fname and fname.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
@@ -84,6 +82,7 @@ def ldm_upload(project_id_str):
         }
 
         # Check integrity of uploaded files
+        print('Check integerity')
         for key in ['img', 'eo']:
             if key not in request.files:  # Key check
                 return 'No %s part' % key
@@ -97,22 +96,26 @@ def ldm_upload(project_id_str):
                 return 'Failed to save the uploaded files'
 
         # IPOD chain 1: System calibration
+        print('System calibration')
         parsed_eo = my_drone.preprocess_eo_file(os.path.join(project_path, fname_dict['eo']))
-        if my_drone.pre_calibrated:
-            pass
-        else:
-            # TODO: Implement system calibration procedure
-            pass
+        if not my_drone.pre_calibrated:
+            omega, phi, kappa = calibrate(parsed_eo[3], parsed_eo[4], parsed_eo[5], my_drone.ipod_params['R_CB'])
+            parsed_eo[3] = omega
+            parsed_eo[4] = phi
+            parsed_eo[5] = kappa
 
         # IPOD chain 2: Individual ortho-image generation
+        print('Orthophoto')
         fname_dict['img_rectified'] = fname_dict['img'].split('.')[0] + '.tif'
+        print(fname_dict)
         bbox_wkt = rectify(
             project_path=project_path,
             img_fname=fname_dict['img'],
             img_rectified_fname=fname_dict['img_rectified'],
             eo=parsed_eo,
             ground_height=my_drone.ipod_params['ground_height'],
-            sensor_width=my_drone.ipod_params['sensor_width']
+            sensor_width=my_drone.ipod_params['sensor_width'],
+            gsd=my_drone.ipod_params['gsd']
         )
 
         # IPOD chain 3: Object detection
@@ -132,12 +135,9 @@ def ldm_upload(project_id_str):
 
         print(img_metadata)
 
-        print('Copy the orthophoto to windows share folder')
-        start_time = time.time()
         import shutil
         shutil.copy(os.path.join(project_path, fname_dict['img_rectified']),
-                    os.path.join('//192.168.0.14/Sandbox', fname_dict['img_rectified']))
-        print("--- %s seconds ---" % (time.time() - start_time))
+                    os.path.join('//192.168.0.2/Sandbox', fname_dict['img_rectified']))
 
         # # Mago3D에 전송
         # res = mago3d.upload(

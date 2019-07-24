@@ -100,8 +100,11 @@ def rectify(project_path, img_fname, img_rectified_fname, eo, ground_height, sen
     img_rectified_fname_kctm = img_rectified_fname.split('.')[0] + '_kctm.tif'
     dst = os.path.join(project_path, img_rectified_fname_kctm)
     createGeoTiff(b, g, r, a, bbox, gsd, boundary_rows, boundary_cols, dst)
+    print("--- %s seconds ---" % (time.time() - start_time))
 
     # GDAL warp to reproject from EPSG:5186 to EPSG:4326
+    print('GDAL Warp')
+    start_time = time.time()
     gdal.Warp(
         os.path.join(project_path, img_rectified_fname),
         gdal.Open(os.path.join(project_path, img_rectified_fname_kctm)),
@@ -109,7 +112,6 @@ def rectify(project_path, img_fname, img_rectified_fname, eo, ground_height, sen
         srcSRS='EPSG:5186',
         dstSRS='EPSG:4326'
     )
-
     print("--- %s seconds ---" % (time.time() - start_time))
 
     print('*** Processing time per each image')
