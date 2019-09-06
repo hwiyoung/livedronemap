@@ -9,7 +9,7 @@ from server.image_processing.orthophoto_generation.ExifData import getExif, rest
 from server.image_processing.orthophoto_generation.EoData import convertCoordinateSystem, Rot3D
 from server.image_processing.orthophoto_generation.Boundary import boundary
 from server.image_processing.orthophoto_generation.BackprojectionResample import projectedCoord, backProjection, \
-    resample, createGeoTiff
+    resample, createGeoTiff, resampleThermal, createGeoTiffThermal
 
 
 def export_bbox_to_wkt(bbox):
@@ -38,6 +38,7 @@ def rectify(project_path, img_fname, img_rectified_fname, eo, ground_height, sen
     """
     img_path = os.path.join(project_path, img_fname)
 
+    start_record = time.time()
     start_time = time.time()
 
     print('Read the image - ' + img_fname)
@@ -48,6 +49,9 @@ def rectify(project_path, img_fname, img_rectified_fname, eo, ground_height, sen
 
     # 1. Restore the image based on orientation information
     restored_image = restoreOrientation(image, orientation)
+
+    # 1-1. Convert pixel values into temperature
+    converted_image = restored_image * 0.04 - 273.15
 
     image_rows = restored_image.shape[0]
     image_cols = restored_image.shape[1]
@@ -92,30 +96,49 @@ def rectify(project_path, img_fname, img_rectified_fname, eo, ground_height, sen
 
     print('resample')
     start_time = time.time()
-    b, g, r, a = resample(backProj_coords, boundary_rows, boundary_cols, image)
+    gray = resampleThermal(backProj_coords, boundary_rows, boundary_cols, converted_image)
+    # b, g, r, a = resample(backProj_coords, boundary_rows, boundary_cols, image)
     print("--- %s seconds ---" % (time.time() - start_time))
 
     print('Save the image in GeoTiff')
     start_time = time.time()
     img_rectified_fname_kctm = img_rectified_fname.split('.')[0] + '_kctm.tif'
     dst = os.path.join(project_path, img_rectified_fname_kctm)
-    createGeoTiff(b, g, r, a, bbox, gsd, boundary_rows, boundary_cols, dst)
+    createGeoTiffThermal(gray, bbox, gsd, boundary_rows, boundary_cols, dst)
+    # createGeoTiff(b, g, r, a, bbox, gsd, boundary_rows, boundary_cols, dst)
     print("--- %s seconds ---" % (time.time() - start_time))
 
     # GDAL warp to reproject from EPSG:5186 to EPSG:4326
     print('GDAL Warp')
     start_time = time.time()
+    # gdal.Warp(
+    #     os.path.join(project_path, img_rectified_fname),
+    #     gdal.Open(os.path.join(project_path, img_rectified_fname_kctm)),
+    #     format='GTiff',
+    #     srcSRS='EPSG:5186',
+    #     dstSRS='EPSG:4326'
+    # )
+
     gdal.Warp(
-        os.path.join(project_path, img_rectified_fname),
+        os.path.join('Z:/', img_rectified_fname),
         gdal.Open(os.path.join(project_path, img_rectified_fname_kctm)),
         format='GTiff',
         srcSRS='EPSG:5186',
-        dstSRS='EPSG:4326'
+        dstSRS='EPSG:3857'
     )
+
+    # gdal.Warp(
+    #     os.path.join('//192.168.0.3/Sandbox', img_rectified_fname),
+    #     gdal.Open(os.path.join(project_path, img_rectified_fname_kctm)),
+    #     format='GTiff',
+    #     srcSRS='EPSG:5186',
+    #     dstSRS='EPSG:4326'
+    # )
+
     print("--- %s seconds ---" % (time.time() - start_time))
 
     print('*** Processing time per each image')
-    print("--- %s seconds ---" % (time.time() - start_time + read_time))
+    print("--- %s seconds ---" % (time.time() - start_record))
 
     bbox_wkt = export_bbox_to_wkt(bbox)
     return bbox_wkt

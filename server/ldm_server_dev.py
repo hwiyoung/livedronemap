@@ -132,12 +132,12 @@ def ldm_upload(project_id_str):
 
         print(img_metadata)
 
-        print('Copy the orthophoto to windows share folder')
-        start_time = time.time()
-        import shutil
-        shutil.copy(os.path.join(project_path, fname_dict['img_rectified']),
-                    os.path.join('//192.168.0.14/Sandbox', fname_dict['img_rectified']))
-        print("--- %s seconds ---" % (time.time() - start_time))
+        # print('Copy the orthophoto to windows share folder')
+        # start_time = time.time()
+        # import shutil
+        # shutil.copy(os.path.join(project_path, fname_dict['img_rectified']),
+        #             os.path.join('//192.168.0.3/Sandbox', fname_dict['img_rectified']))
+        # print("--- %s seconds ---" % (time.time() - start_time))
 
         # # Mago3D에 전송
         # res = mago3d.upload(
