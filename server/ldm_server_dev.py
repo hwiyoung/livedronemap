@@ -31,8 +31,8 @@ mago3d = Mago3D(
 # from server.my_drones import TiLabETRI
 # my_drone = TiLabETRI(pre_calibrated=True)
 
-from server.my_drones import DJIMavic
-my_drone = DJIMavic(pre_calibrated=True)
+from server.my_drones import VueProR
+my_drone = VueProR(pre_calibrated=True)
 
 
 def allowed_file(fname):

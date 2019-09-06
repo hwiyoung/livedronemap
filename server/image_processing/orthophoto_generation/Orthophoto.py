@@ -44,11 +44,14 @@ def rectify(project_path, img_fname, img_rectified_fname, eo, ground_height, sen
     print('Read the image - ' + img_fname)
     image = cv2.imread(img_path)
 
+    focal_length = 9 / 1000  # unit : mm -> m
+
     # 0. Extract EXIF data from a image
-    focal_length, orientation = getExif(img_path)  # unit: m
+    # focal_length, orientation = getExif(img_path)  # unit: m
 
     # 1. Restore the image based on orientation information
-    restored_image = restoreOrientation(image, orientation)
+    # restored_image = restoreOrientation(image, orientation)
+    restored_image = image
 
     # 1-1. Convert pixel values into temperature
     converted_image = restored_image * 0.04 - 273.15

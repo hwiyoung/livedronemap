@@ -13,7 +13,8 @@ from clients.mago3d import Mago3D
 
 
 def start_image_check(simulation_id_str=None):
-    img_fname_list = glob.glob('%s/*.JPG' % Config.DIRECTORY_IMAGE_CHECK)
+    # img_fname_list = glob.glob('%s/*.JPG' % Config.DIRECTORY_IMAGE_CHECK)
+    img_fname_list = glob.glob('%s/*.tiff' % Config.DIRECTORY_IMAGE_CHECK)
 
     # 현재 프로젝트 설정
     ldm = Livedronemap(Config.LDM_ADDRESS)
