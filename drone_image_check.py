@@ -11,7 +11,6 @@ from clients.mago3d import Mago3D
 
 # MAGO3D_CONFIG = json.load(open('config_mago3d.json', 'r'))
 
-
 def start_image_check(simulation_id_str=None):
     # img_fname_list = glob.glob('%s/*.JPG' % Config.DIRECTORY_IMAGE_CHECK)
     img_fname_list = glob.glob('%s/*.tiff' % Config.DIRECTORY_IMAGE_CHECK)
@@ -32,7 +31,6 @@ def start_image_check(simulation_id_str=None):
     # 테스트 데이터 전송
     for img_fname in tqdm(img_fname_list):
         start_time = time.time()
-        # eo_fname = img_fname.split('.')[1] + '.txt'
         img_fname = img_fname[2:]
         eo_fname = img_fname.split('.')[0] + '.txt'
 
