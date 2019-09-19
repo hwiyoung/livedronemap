@@ -31,10 +31,10 @@ class BaseDrone(metaclass=ABCMeta):
 class VueProR(BaseDrone):
     def __init__(self, pre_calibrated=False):
         self.ipod_params = {
-            "sensor_width": 6.3,
-            'focal_length': 0.009,
-            'gsd': 0.25,
-            'ground_height': 800,
+            "sensor_width": 10.88,  # mm
+            'focal_length': 0.009,  # m
+            'gsd': 0.25,            # m
+            'ground_height': 800,   # m
         }
         self.pre_calibrated = pre_calibrated
 
