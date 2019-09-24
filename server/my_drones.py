@@ -34,7 +34,7 @@ class VueProR(BaseDrone):
             "sensor_width": 10.88,  # mm
             'focal_length': 0.009,  # m
             'gsd': 0.25,            # m
-            'ground_height': 800,   # m
+            'ground_height': 0,   # m
         }
         self.pre_calibrated = pre_calibrated
 
