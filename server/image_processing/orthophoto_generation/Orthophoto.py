@@ -40,7 +40,7 @@ def rectify(project_path, img_fname, img_rectified_fname, eo, ground_height, sen
     start_time = time.time()
 
     print('Read the image - ' + img_fname)
-    image = cv2.imread(img_path)
+    image = cv2.imread(img_path, -1)
 
     focal_length = 9 / 1000  # unit : mm -> m
 

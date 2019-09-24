@@ -32,11 +32,8 @@ def convertCoordinateSystem(eo):
     # Check the transformation for a point close to the centre of the projected grid
     # The order of TransformPoint(Latitude, Longitude)
     xy = latlon2tm.TransformPoint(float(eo[1]), float(eo[0]))
-    # converted_eo = copy(eo)
-    # converted_eo[0:2] = xy[0:2]
-    converted_eo = eo
-    converted_eo[0] = xy[1]
-    converted_eo[1] = xy[0]
+    converted_eo = copy(eo)
+    converted_eo[0:2] = xy[0:2]
 
     return converted_eo
 
