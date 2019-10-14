@@ -38,7 +38,6 @@ my_drone = VueProR(pre_calibrated=True)
 def allowed_file(fname):
     return '.' in fname and fname.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
-
 @app.route('/project/', methods=['GET', 'POST'])
 def project():
     """

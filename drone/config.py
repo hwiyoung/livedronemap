@@ -1,8 +1,7 @@
 import socket
 
 class BaseConfig:
-    # LDM_ADDRESS = 'http://61.38.45.117:5000/'
-    MAGO3D_ADDRESS = 'http://61.38.45.117:20080/'
+    MAGO3D_ADDRESS = 'http://61.38.45.99:20080/'
     # LDM_ADDRESS = 'http://' + socket.gethostbyname(socket.getfqdn())  + ':5000/' # Local server
     LDM_ADDRESS = 'http://localhost:8080/'  # Local server
     LDM_PROJECT_NAME = 'watchdog'
