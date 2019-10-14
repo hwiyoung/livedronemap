@@ -42,7 +42,9 @@ class Handler(FileSystemEventHandler):
         if event.is_directory:
             return None
         elif event.event_type == 'created':
+            path = event.src_path.split('\\')[0]
             file_name = event.src_path.split('\\')[-1].split('.')[0]
+            print(path + '/' + file_name + '.' + Config.IMAGE_FILE_EXT)
             file_name_prefix = file_name[0:6]
             extension_name = event.src_path.split('.')[1]
             print('A new file detected: %s' % file_name)
@@ -53,12 +55,16 @@ class Handler(FileSystemEventHandler):
             for i in range(len(image_list)):
                 if image_list[i] in eo_list:
                     print('uploading data...')
-                    time.sleep(5)
+                    time.sleep(1)
                     print(file_name + '.' + Config.IMAGE_FILE_EXT)
                     print(file_name + '.' + Config.EO_FILE_EXT)
+                    # upload_data(
+                    #     file_name + '.' + Config.IMAGE_FILE_EXT,
+                    #     file_name + '.' + Config.EO_FILE_EXT
+                    # )
                     upload_data(
-                        file_name + '.' + Config.IMAGE_FILE_EXT,
-                        file_name + '.' + Config.EO_FILE_EXT
+                        path + '/' + file_name + '.' + Config.IMAGE_FILE_EXT,
+                        path + '/' + file_name + '.' + Config.EO_FILE_EXT
                     )
                     eo_list.remove(image_list.pop(i))
 
