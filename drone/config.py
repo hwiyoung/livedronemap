@@ -4,6 +4,6 @@ class BaseConfig:
     LDM_PROJECT_NAME = 'watchdog'
     DIRECTORY_TO_WATCH = 'drone/downloads'
     DIRECTORY_IMAGE_CHECK = 'drone/examples'
-    IMAGE_FILE_EXT = 'jpg'
+    IMAGE_FILE_EXT = 'tiff'
     EO_FILE_EXT = 'txt'
     UPLOAD_INTERVAL = 1

@@ -44,10 +44,10 @@ class Handler(FileSystemEventHandler):
         elif event.event_type == 'created':
             path = event.src_path.split('\\')[0]
             file_name = event.src_path.split('\\')[-1].split('.')[0]
-            print(path + '/' + file_name + '.' + Config.IMAGE_FILE_EXT)
+            # print(path + '/' + file_name + '.' + Config.IMAGE_FILE_EXT)
             file_name_prefix = file_name[0:6]
             extension_name = event.src_path.split('.')[1]
-            print('A new file detected: %s' % file_name)
+            # print('A new file detected: %s' % file_name)
             if Config.IMAGE_FILE_EXT in extension_name:
                 image_list.append(file_name)
             else:

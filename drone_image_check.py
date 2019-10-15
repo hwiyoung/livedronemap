@@ -13,7 +13,13 @@ from clients.mago3d import Mago3D
 
 def start_image_check(simulation_id_str=None):
     # img_fname_list = glob.glob('%s/*.JPG' % Config.DIRECTORY_IMAGE_CHECK)
+    print(Config.DIRECTORY_IMAGE_CHECK)
     img_fname_list = glob.glob('%s/*.tiff' % Config.DIRECTORY_IMAGE_CHECK)
+    img_fname_list_append = []
+    for img in img_fname_list:
+        img_fname_list_append.append(img.replace('\\', '/'))
+
+    print(img_fname_list_append)
 
     # 현재 프로젝트 설정
     ldm = Livedronemap(Config.LDM_ADDRESS)
@@ -29,9 +35,9 @@ def start_image_check(simulation_id_str=None):
 
     res_time_list = []
     # 테스트 데이터 전송
-    for img_fname in tqdm(img_fname_list):
+    for img_fname in tqdm(img_fname_list_append):
         start_time = time.time()
-        img_fname = img_fname[2:]
+        # img_fname = img_fname[2:]
         eo_fname = img_fname.split('.')[0] + '.txt'
 
         upload_start_time = time.time()
