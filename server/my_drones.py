@@ -32,9 +32,13 @@ class VueProR(BaseDrone):
     def __init__(self, pre_calibrated=False):
         self.ipod_params = {
             "sensor_width": 10.88,  # mm
-            'focal_length': 0.009,  # m
+            'focal_length': 0.013,  # m
             'gsd': 0.25,            # m
             'ground_height': 0,   # m
+            "R_CB": np.array(
+                [[0.8780885519,	-0.4770646178, 0.03701142457],
+                 [0.4760363467,	0.8631176389, -0.1685744288],
+                 [0.04847568207, 0.1656420594, 0.9849938154]], dtype=float)  # Must check
         }
         self.pre_calibrated = pre_calibrated
 
@@ -43,45 +47,16 @@ class VueProR(BaseDrone):
             eo_path,
             delimiter='\t',
             dtype={
-                'names': ('Image', 'Longitude', 'Latitude', 'Altitude', 'Omega', 'Phi', 'Kappa'),
+                'names': ('Image', 'Latitude', 'Longitude', 'Altitude', 'Roll', 'Pitch', 'Yaw'),
                 'formats': ('U15', '<f8', '<f8', '<f8', '<f8', '<f8', '<f8')
             }
         )
 
-        eo_line['Omega'] = eo_line['Omega'] * math.pi / 180
-        eo_line['Phi'] = eo_line['Phi'] * math.pi / 180
-        eo_line['Kappa'] = eo_line['Kappa'] * math.pi / 180
+        eo_line['Roll'] = eo_line['Roll'] * math.pi / 180
+        eo_line['Pitch'] = eo_line['Pitch'] * math.pi / 180
+        eo_line['Yaw'] = eo_line['Yaw'] * math.pi / 180
 
         parsed_eo = [float(eo_line['Longitude']), float(eo_line['Latitude']), float(eo_line['Altitude']),
-                     float(eo_line['Omega']), float(eo_line['Phi']), float(eo_line['Kappa'])]
-
-        return parsed_eo
-
-class DJIMavic(BaseDrone):
-    def __init__(self, pre_calibrated=False):
-        self.ipod_params = {
-            "sensor_width": 6.3,
-            'focal_length': 0.0047,
-            'gsd': 0.25,
-            'ground_height': 0.65
-        }
-        self.pre_calibrated = pre_calibrated
-
-    def preprocess_eo_file(self, eo_path):
-        eo_line = np.genfromtxt(
-            eo_path,
-            delimiter='\t',
-            dtype={
-                'names': ('Image', 'Longitude', 'Latitude', 'Altitude', 'Omega', 'Phi', 'Kappa'),
-                'formats': ('U15', '<f8', '<f8', '<f8', '<f8', '<f8', '<f8')
-            }
-        )
-
-        eo_line['Omega'] = eo_line['Omega'] * math.pi / 180
-        eo_line['Phi'] = eo_line['Phi'] * math.pi / 180
-        eo_line['Kappa'] = eo_line['Kappa'] * math.pi / 180
-
-        parsed_eo = [float(eo_line['Longitude']), float(eo_line['Latitude']), float(eo_line['Altitude']),
-                     float(eo_line['Omega']), float(eo_line['Phi']), float(eo_line['Kappa'])]
+                     float(eo_line['Roll']), float(eo_line['Pitch']), float(eo_line['Yaw'])]
 
         return parsed_eo

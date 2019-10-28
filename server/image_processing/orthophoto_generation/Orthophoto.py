@@ -42,7 +42,7 @@ def rectify(project_path, img_fname, img_rectified_fname, eo, ground_height, sen
     print('Read the image - ' + img_fname)
     image = cv2.imread(img_path, -1)
 
-    focal_length = 9 / 1000  # unit : mm -> m
+    focal_length = 13 / 1000  # unit : mm -> m
 
     # 0. Extract EXIF data from a image
     # focal_length, orientation = getExif(img_path)  # unit: m

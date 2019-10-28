@@ -13,6 +13,7 @@ from clients.mago3d import Mago3D
 # from drone.drone_image_check import start_image_check
 
 from server.image_processing.orthophoto_generation.Orthophoto import rectify
+from server.image_processing.system_calibration import calibrate
 
 # Initialize flask
 app = Flask(__name__)
@@ -32,7 +33,7 @@ mago3d = Mago3D(
 # my_drone = TiLabETRI(pre_calibrated=True)
 
 from server.my_drones import VueProR
-my_drone = VueProR(pre_calibrated=True)
+my_drone = VueProR(pre_calibrated=False)
 
 
 def allowed_file(fname):
@@ -97,11 +98,15 @@ def ldm_upload(project_id_str):
 
         # IPOD chain 1: System calibration
         parsed_eo = my_drone.preprocess_eo_file(os.path.join(project_path, fname_dict['eo']))
-        if my_drone.pre_calibrated:
-            pass
-        else:
-            # TODO: Implement system calibration procedure
-            pass
+        if not my_drone.pre_calibrated:
+            OPK = calibrate(parsed_eo[3], parsed_eo[4], parsed_eo[5], my_drone.ipod_params["R_CB"])
+            parsed_eo[3] = OPK[0]
+            parsed_eo[4] = OPK[1]
+            parsed_eo[5] = OPK[2]
+
+        if abs(OPK[0]) > 0.175 or abs(OPK[1]) > 0.175:
+            print('Too much omega/phi will kill you')
+            return 'Too much omega/phi will kill you'
 
         # IPOD chain 2: Individual ortho-image generation
         fname_dict['img_rectified'] = fname_dict['img'].split('.')[0] + '.tif'
