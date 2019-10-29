@@ -12,7 +12,7 @@ def readEO(path):
     eo_line['Phi'] = eo_line['Phi'] * math.pi / 180
     eo_line['Kappa'] = eo_line['Kappa'] * math.pi / 180
 
-    eo = [float(eo_line['Latitude']), float(eo_line['Longitude']), float(eo_line['Height']),
+    eo = [float(eo_line['Longitude']), float(eo_line['Latitude']), float(eo_line['Height']),
           float(eo_line['Omega']), float(eo_line['Phi']), float(eo_line['Kappa'])]
 
     return eo

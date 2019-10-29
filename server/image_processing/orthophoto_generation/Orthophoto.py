@@ -66,7 +66,7 @@ def rectify(project_path, img_fname, img_rectified_fname, eo, ground_height, sen
     read_time = end_time - start_time
 
     print('Read EOP - ' + img_fname)
-    print('Northing | Easting | Height | Omega | Phi | Kappa')
+    print('Easting | Northing | Height | Omega | Phi | Kappa')
     converted_eo = convertCoordinateSystem(eo)
     print(converted_eo)
     R = Rot3D(converted_eo)

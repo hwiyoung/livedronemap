@@ -35,23 +35,25 @@ class VueProR(BaseDrone):
             'focal_length': 0.013,  # m
             'gsd': 0.25,            # m
             'ground_height': 0,   # m
-            "R_CB": np.array(
-                [[0.8780885519,	-0.4770646178, 0.03701142457],
-                 [0.4760363467,	0.8631176389, -0.1685744288],
-                 [0.04847568207, 0.1656420594, 0.9849938154]], dtype=float)  # Must check
+            "R_CB": np.array([[0.996892729, -0.01561805212,	-0.0772072755],
+                              [0.01841927538, 0.999192656, 0.03570387246],
+                              [0.07658731773, -0.03701503292, 0.9963755668]], dtype=float)  # 191029
         }
         self.pre_calibrated = pre_calibrated
 
     def preprocess_eo_file(self, eo_path):
+        # #-------------- drone_image_check --------------
         # eo_line = np.genfromtxt(
         #     eo_path,
         #     delimiter='\t',
         #     dtype={
-        #         'names': ('Image', 'Latitude', 'Longitude', 'Altitude', 'Roll', 'Pitch', 'Yaw'),
-        #         'formats': ('U15', '<f8', '<f8', '<f8', '<f8', '<f8', '<f8')
+        #         'names': ('Image', 'Longitude', 'Latitude', 'Altitude', 'Roll', 'Pitch', 'Yaw'),
+        #         'formats': ('U25', '<f8', '<f8', '<f8', '<f8', '<f8', '<f8')
         #     }
         # )
+        # # ----------------------------------------------
 
+        # -------------- drone_file_upload --------------
         eo_line = np.genfromtxt(
             eo_path,
             delimiter='\t',
@@ -60,6 +62,7 @@ class VueProR(BaseDrone):
                 'formats': ('<f8', '<f8', '<f8', '<f8', '<f8', '<f8')
             }
         )
+        # ----------------------------------------------
 
         eo_line['Roll'] = eo_line['Roll'] * math.pi / 180
         eo_line['Pitch'] = eo_line['Pitch'] * math.pi / 180

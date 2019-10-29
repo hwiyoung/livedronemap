@@ -104,9 +104,9 @@ def ldm_upload(project_id_str):
             parsed_eo[4] = OPK[1]
             parsed_eo[5] = OPK[2]
 
-        if abs(OPK[0]) > 0.175 or abs(OPK[1]) > 0.175:
-            print('Too much omega/phi will kill you')
-            return 'Too much omega/phi will kill you'
+            if abs(OPK[0]) > 0.175 or abs(OPK[1]) > 0.175:
+                print('Too much omega/phi will kill you')
+                return 'Too much omega/phi will kill you'
 
         # IPOD chain 2: Individual ortho-image generation
         fname_dict['img_rectified'] = fname_dict['img'].split('.')[0] + '.tif'
