@@ -43,12 +43,21 @@ class VueProR(BaseDrone):
         self.pre_calibrated = pre_calibrated
 
     def preprocess_eo_file(self, eo_path):
+        # eo_line = np.genfromtxt(
+        #     eo_path,
+        #     delimiter='\t',
+        #     dtype={
+        #         'names': ('Image', 'Latitude', 'Longitude', 'Altitude', 'Roll', 'Pitch', 'Yaw'),
+        #         'formats': ('U15', '<f8', '<f8', '<f8', '<f8', '<f8', '<f8')
+        #     }
+        # )
+
         eo_line = np.genfromtxt(
             eo_path,
             delimiter='\t',
             dtype={
-                'names': ('Image', 'Latitude', 'Longitude', 'Altitude', 'Roll', 'Pitch', 'Yaw'),
-                'formats': ('U15', '<f8', '<f8', '<f8', '<f8', '<f8', '<f8')
+                'names': ('Latitude', 'Longitude', 'Altitude', 'Roll', 'Pitch', 'Yaw'),
+                'formats': ('<f8', '<f8', '<f8', '<f8', '<f8', '<f8')
             }
         )
 
