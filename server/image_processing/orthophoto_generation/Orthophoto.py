@@ -9,10 +9,10 @@ from server.image_processing.orthophoto_generation.ExifData import exiv2, restor
 from server.image_processing.orthophoto_generation.EoData import latlon2tmcentral, Rot3D
 from server.image_processing.orthophoto_generation.Boundary import boundary
 from server.image_processing.orthophoto_generation.BackprojectionResample import projectedCoord, backProjection, \
-    resample, createGeoTiff
+    resample, createGeoTiff, convert2PNG
 
 
-def export_bbox_to_wkt(bbox):
+def export_bbox_to_wkt(bbox, dst):
     ring = ogr.Geometry(ogr.wkbLinearRing)
     ring.AddPoint(bbox[0][0], bbox[2][0])
     ring.AddPoint(bbox[0][0], bbox[3][0])
@@ -21,6 +21,25 @@ def export_bbox_to_wkt(bbox):
     geom_poly = ogr.Geometry(ogr.wkbPolygon)
     geom_poly.AddGeometry(ring)
     wkt = geom_poly.ExportToWkt()
+
+    # Create a polygon
+    ring = ogr.Geometry(ogr.wkbLinearRing)
+    ring.AddPoint(bbox[0][0], bbox[2][0])   # Xmin, Ymin
+    ring.AddPoint(bbox[0][0], bbox[3][0])   # Xmin, Ymax
+    ring.AddPoint(bbox[1][0], bbox[3][0])   # Xmax, Ymax
+    ring.AddPoint(bbox[1][0], bbox[2][0])   # Xmax, Ymin
+    ring.AddPoint(bbox[0][0], bbox[2][0])   # Xmin, Ymin
+
+    geom_poly = ogr.Geometry(ogr.wkbPolygon)
+    geom_poly.AddGeometry(ring)
+
+    # Export geometry to WKT
+    wkt = geom_poly.ExportToWkt()
+
+    f = open(dst + '.txt', 'w')
+    f.write(wkt)
+    f.close()
+
     return wkt
 
 
@@ -97,27 +116,17 @@ def rectify(project_path, img_fname, img_rectified_fname, eo, ground_height, sen
         b, g, r, a = resample(backProj_coords, boundary_rows, boundary_cols, image)
         print("--- %s seconds ---" % (time.time() - start_time))
 
-        print('Save the image in GeoTiff')
+        print('Save the image in PNGA')
         start_time = time.time()
-        img_rectified_fname_kctm = img_rectified_fname.split('.')[0] + '_kctm.tif'
-        dst = os.path.join(project_path, img_rectified_fname_kctm)
-        createGeoTiff(b, g, r, a, bbox, gsd, boundary_rows, boundary_cols, dst)
-
-        # GDAL warp to reproject from EPSG:5186 to EPSG:4326
-        gdal.Warp(
-            os.path.join(project_path, img_rectified_fname),
-            gdal.Open(os.path.join(project_path, img_rectified_fname_kctm)),
-            format='GTiff',
-            srcSRS='EPSG:5186',
-            dstSRS='EPSG:4326'
-        )
-
+        filename = os.path.splitext(img_fname)[0]
+        createGeoTiff(b, g, r, a, bbox, gsd, boundary_rows, boundary_cols, project_path + filename)
+        convert2PNG(project_path + filename + '.tif', project_path + filename + '.png')  # src, dst
         print("--- %s seconds ---" % (time.time() - start_time))
 
         print('*** Processing time per each image')
         print("--- %s seconds ---" % (time.time() - start_time + read_time))
 
-        bbox_wkt = export_bbox_to_wkt(bbox)
+        bbox_wkt = export_bbox_to_wkt(bbox, dst=project_path + filename)
         return bbox_wkt
     else:
         return None

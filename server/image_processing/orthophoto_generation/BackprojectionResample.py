@@ -61,11 +61,24 @@ def resample(coord, boundary_rows, boundary_cols, image):
     return b, g, r, a
 
 def createGeoTiff(b, g, r, a, boundary, gsd, rows, cols, dst):
+    """
+    :param b:
+    :param g:
+    :param r:
+    :param a:
+    :param boundary:
+    :param gsd: GSD in m. If not specified, it will automatically determine gsd.
+    :param rows:
+    :param cols:
+    :param dst: destination file path w/o extension - e.g.: C:/Users/imgae
+    :return File name of rectified image, boundary polygon in WKT string
+    """
+
     # https://stackoverflow.com/questions/33537599/how-do-i-write-create-a-geotiff-rgb-image-file-in-python
     geotransform = (boundary[0], gsd, 0, boundary[3], 0, -gsd)
 
     # create the 4-band(RGB+Alpha) raster file
-    dst_ds = gdal.GetDriverByName('GTiff').Create(dst, cols, rows, 4, gdal.GDT_Byte)
+    dst_ds = gdal.GetDriverByName('GTiff').Create(dst + '.tif', cols, rows, 4, gdal.GDT_Byte)
     dst_ds.SetGeoTransform(geotransform)  # specify coords
 
     # Define the TM central coordinate system (EPSG 5186)
@@ -80,3 +93,12 @@ def createGeoTiff(b, g, r, a, boundary, gsd, rows, cols, dst):
 
     dst_ds.FlushCache()  # write to disk
     dst_ds = None
+
+def convert2PNG(src, dst):
+    """
+    :param src: source file path w/ extension - e.g.: C:/Users/imgae.tif
+    :param dst: destination file path w/ extension - e.g.: C:/Users/imgae.png
+    """
+
+    # Convert GeoTiff to PNG using gdal.Translate
+    gdal.Translate(dst, src)
