@@ -55,7 +55,7 @@ class Handler(FileSystemEventHandler):
             for i in range(len(image_list)):
                 if image_list[i] in eo_list:
                     print('uploading data...')
-                    time.sleep(1)
+                    time.sleep(2)
                     print(file_name + '.' + Config.IMAGE_FILE_EXT)
                     print(file_name + '.' + Config.EO_FILE_EXT)
                     # upload_data(

@@ -15,22 +15,14 @@ from clients.mago3d import Mago3D
 from server.image_processing.orthophoto_generation.Orthophoto import rectify
 from server.image_processing.system_calibration import calibrate
 
+import cv2
+
 # Initialize flask
 app = Flask(__name__)
 app.config.from_object(config_flask.BaseConfig)
 
 # Initialize multi-thread
 executor = ThreadPoolExecutor(2)
-
-# Initialize Mago3D client
-mago3d = Mago3D(
-    url=app.config['MAGO3D_CONFIG']['url'],
-    user_id=app.config['MAGO3D_CONFIG']['user_id'],
-    api_key=app.config['MAGO3D_CONFIG']['api_key']
-)
-
-# from server.my_drones import TiLabETRI
-# my_drone = TiLabETRI(pre_calibrated=True)
 
 from server.my_drones import VueProR
 my_drone = VueProR(pre_calibrated=False)
@@ -50,15 +42,14 @@ def project():
         project_list = os.listdir(app.config['UPLOAD_FOLDER'])
         return json.dumps(project_list)
     if request.method == 'POST':
-        # Create a new project on Mago3D
-        res = mago3d.create_project(request.json['name'], request.json['project_type'], request.json['shooting_area'])
-        # Mago3D assigns a new project ID to LDM
-        project_id = str(res.json()['droneProjectId'])
+        project_id = 'LOCAL_%s' % round(time.time())
+
         # Using the assigned ID, ldm makes a new folder to projects directory
         new_project_dir = os.path.join(app.config['UPLOAD_FOLDER'], project_id)
         os.mkdir(new_project_dir)
         os.mkdir(os.path.join(new_project_dir, 'rectified'))
-        # LDM returns the project ID that Mago3D assigned
+
+        # LDM returns the project ID that local server assigned
         return project_id
 
 
@@ -71,7 +62,7 @@ def ldm_upload(project_id_str):
         1) System calibration
         2) Individual ortho-image generation
         3) Object detection (red tide, ship, etc.)
-    :param project_id_str: project_id which Mago3D assigned for each projects
+    :param project_id_str: project_id which local server assigned for each projects
     :return:
     """
     if request.method == 'POST':
@@ -108,6 +99,9 @@ def ldm_upload(project_id_str):
                 print('Too much omega/phi will kill you')
                 return 'Too much omega/phi will kill you'
 
+        # if cv2.imread(os.path.join(project_path, fname_dict[key])) is None:
+        #     return 'The file is broken'
+
         # IPOD chain 2: Individual ortho-image generation
         fname_dict['img_rectified'] = fname_dict['img'].split('.')[0] + '.tif'
         bbox_wkt = rectify(
@@ -119,22 +113,21 @@ def ldm_upload(project_id_str):
             sensor_width=my_drone.ipod_params['sensor_width']
         )
 
-        # IPOD chain 3: Object detection
-        # TODO: Implement object detection functions
-        detected_objects = []
-
-        # Generate metadata for Mago3D
-        img_metadata = create_img_metadata(
-            drone_project_id=int(project_id_str),
-            data_type='0',
-            file_name=fname_dict['img_rectified'],
-            detected_objects=detected_objects,
-            drone_id='0',
-            drone_name='my_drone',
-            parsed_eo=parsed_eo
-        )
-
-        print(img_metadata)
+        # # IPOD chain 3: Object detection
+        # detected_objects = []
+        #
+        # # Generate metadata for Mago3D
+        # img_metadata = create_img_metadata(
+        #     drone_project_id=int(project_id_str),
+        #     data_type='0',
+        #     file_name=fname_dict['img_rectified'],
+        #     detected_objects=detected_objects,
+        #     drone_id='0',
+        #     drone_name='my_drone',
+        #     parsed_eo=parsed_eo
+        # )
+        #
+        # print(img_metadata)
 
         # print('Copy the orthophoto to windows share folder')
         # start_time = time.time()
