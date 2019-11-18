@@ -70,6 +70,5 @@ class Handler(FileSystemEventHandler):
 
 
 if __name__ == '__main__':
-    # upload_data('drone/downloads/2019-06-20/2019-06-20_144752.jpg', 'drone/downloads/2019-06-20/2019-06-20_144752.txt')
     w = Watcher(directory_to_watch=Config.DIRECTORY_TO_WATCH)
     w.run()

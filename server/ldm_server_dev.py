@@ -95,10 +95,11 @@ def ldm_upload(project_id_str):
             parsed_eo[4] = OPK[1]
             parsed_eo[5] = OPK[2]
 
-            if abs(OPK[0]) > 0.175 or abs(OPK[1]) > 0.175:
-                print('Too much omega/phi will kill you')
-                return 'Too much omega/phi will kill you'
+            # if abs(OPK[0]) > 0.175 or abs(OPK[1]) > 0.175:
+            #     print('Too much omega/phi will kill you')
+            #     return 'Too much omega/phi will kill you'
 
+        # TODO: exception handling must be done
         # if cv2.imread(os.path.join(project_path, fname_dict[key])) is None:
         #     return 'The file is broken'
 
@@ -112,37 +113,6 @@ def ldm_upload(project_id_str):
             ground_height=my_drone.ipod_params['ground_height'],
             sensor_width=my_drone.ipod_params['sensor_width']
         )
-
-        # # IPOD chain 3: Object detection
-        # detected_objects = []
-        #
-        # # Generate metadata for Mago3D
-        # img_metadata = create_img_metadata(
-        #     drone_project_id=int(project_id_str),
-        #     data_type='0',
-        #     file_name=fname_dict['img_rectified'],
-        #     detected_objects=detected_objects,
-        #     drone_id='0',
-        #     drone_name='my_drone',
-        #     parsed_eo=parsed_eo
-        # )
-        #
-        # print(img_metadata)
-
-        # print('Copy the orthophoto to windows share folder')
-        # start_time = time.time()
-        # import shutil
-        # shutil.copy(os.path.join(project_path, fname_dict['img_rectified']),
-        #             os.path.join('//192.168.0.3/Sandbox', fname_dict['img_rectified']))
-        # print("--- %s seconds ---" % (time.time() - start_time))
-
-        # # Mago3D에 전송
-        # res = mago3d.upload(
-        #     img_rectified_path=os.path.join(project_path, fname_dict['img_rectified']),
-        #     img_metadata=img_metadata
-        # )
-        #
-        # print(res.text)
 
         return 'Image upload and IPOD chain complete'
 

@@ -7,12 +7,8 @@ import arrow
 
 from drone.config import BaseConfig as Config
 from clients.ldm_client import Livedronemap
-from clients.mago3d import Mago3D
-
-# MAGO3D_CONFIG = json.load(open('config_mago3d.json', 'r'))
 
 def start_image_check(simulation_id_str=None):
-    # img_fname_list = glob.glob('%s/*.JPG' % Config.DIRECTORY_IMAGE_CHECK)
     print(Config.DIRECTORY_IMAGE_CHECK)
     img_fname_list = glob.glob('%s/*.tiff' % Config.DIRECTORY_IMAGE_CHECK)
     img_fname_list_append = []
@@ -23,15 +19,8 @@ def start_image_check(simulation_id_str=None):
 
     # 현재 프로젝트 설정
     ldm = Livedronemap(Config.LDM_ADDRESS)
-    drone_project_id = ldm.create_project('Simulation (%s)' % arrow.utcnow().format('YYYYMMDDHHmmss'), project_type='1')  # TODO: project_type SHOULD BE '1'
-    ldm.set_current_project(drone_project_id)
-
-    # # Mago3D 클라이언트 설정
-    # mago3d = Mago3D(url=MAGO3D_CONFIG['url'], user_id=MAGO3D_CONFIG['user_id'],
-    #                 api_key=MAGO3D_CONFIG['api_key'])
-    #
-    # # 프로젝트 생성 후 프로젝트 ID 연결
-    # mago3d.set_simulation_id(simulation_id_str, drone_project_id, status='2')
+    project_id = ldm.create_project(Config.LDM_PROJECT_NAME)
+    ldm.set_current_project(project_id)
 
     res_time_list = []
     # 테스트 데이터 전송

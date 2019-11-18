@@ -78,9 +78,11 @@ def rectify(project_path, img_fname, img_rectified_fname, eo, ground_height, sen
     if gsd == 'auto':
         gsd = (pixel_size * (converted_eo[2] - ground_height)) / focal_length  # unit: m/px
 
+    # TODO: exception handling must be done
     # Boundary size
     boundary_cols = int((bbox[1, 0] - bbox[0, 0]) / gsd)
     boundary_rows = int((bbox[3, 0] - bbox[2, 0]) / gsd)
+    print(boundary_rows, boundary_cols)
 
     print('projectedCoord')
     start_time = time.time()
