@@ -58,7 +58,7 @@ class VueProR(BaseDrone):
             eo_path,
             delimiter='\t',
             dtype={
-                'names': ('Latitude', 'Longitude', 'Altitude', 'Roll', 'Pitch', 'Yaw'),
+                'names': ('Longitude', 'Latitude', 'Altitude', 'Roll', 'Pitch', 'Yaw'),
                 'formats': ('<f8', '<f8', '<f8', '<f8', '<f8', '<f8')
             }
         )

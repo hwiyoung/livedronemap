@@ -116,7 +116,7 @@ def rectify(project_path, img_fname, img_rectified_fname, eo, ground_height, sen
     start_time = time.time()
     gdal.Warp(
         # os.path.join('Z:/', img_rectified_fname),   # dst
-        os.path.join('./', img_rectified_fname),   # dst
+        os.path.join('Orthophoto_result/', img_rectified_fname),   # dst
         gdal.Open(os.path.join(project_path, img_rectified_fname_kctm)),                # src
         format='GTiff',
         srcSRS='EPSG:5186',

@@ -27,6 +27,7 @@ executor = ThreadPoolExecutor(2)
 from server.my_drones import VueProR
 my_drone = VueProR(pre_calibrated=False)
 
+height_threshold = 100
 
 def allowed_file(fname):
     return '.' in fname and fname.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
@@ -89,19 +90,18 @@ def ldm_upload(project_id_str):
 
         # IPOD chain 1: System calibration
         parsed_eo = my_drone.preprocess_eo_file(os.path.join(project_path, fname_dict['eo']))
+        if parsed_eo[2] - my_drone.ipod_params["ground_height"] <= height_threshold:
+            print("The height of the image is too low: ",
+                  parsed_eo[2] - my_drone.ipod_params["ground_height"], " m")
+            return "The height of the image is too low"
+        print("The height of the image: ", parsed_eo[2] - my_drone.ipod_params["ground_height"], " m")
         if not my_drone.pre_calibrated:
             OPK = calibrate(parsed_eo[3], parsed_eo[4], parsed_eo[5], my_drone.ipod_params["R_CB"])
-            parsed_eo[3] = OPK[0]
-            parsed_eo[4] = OPK[1]
-            parsed_eo[5] = OPK[2]
+            parsed_eo[3:] = OPK
 
             # if abs(OPK[0]) > 0.175 or abs(OPK[1]) > 0.175:
             #     print('Too much omega/phi will kill you')
             #     return 'Too much omega/phi will kill you'
-
-        # TODO: exception handling must be done
-        # if cv2.imread(os.path.join(project_path, fname_dict[key])) is None:
-        #     return 'The file is broken'
 
         # IPOD chain 2: Individual ortho-image generation
         fname_dict['img_rectified'] = fname_dict['img'].split('.')[0] + '.tif'

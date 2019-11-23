@@ -2,6 +2,7 @@ import cv2
 from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 
+
 def getExif(path):
     src_image = Image.open(path)
     info = src_image._getexif()
