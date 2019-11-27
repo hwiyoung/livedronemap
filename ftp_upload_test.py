@@ -8,7 +8,8 @@ import time
 # local_path = 'C:/Users/InnoPAM/Desktop/20191121/4-1000m/'
 # local_path = 'C:/Users/InnoPAM/Desktop/20191121/5-1000m500mRTL/'
 # local_path = 'C:/Users/InnoPAM/Desktop/20191121/6-1000m500m/'
-local_path = 'C:/Users/InnoPAM/Desktop/20191121/7-1000m1000m/'
+# local_path = 'C:/Users/InnoPAM/Desktop/20191121/7-1000m1000m/'
+local_path = "C:/Users/InnoPAM/Desktop/샌드박스_산림청_실험데이터/20191127/20191127_113855/"
 remote_path = 'drone/downloads/'
 
 for root, dirs, files in os.walk(local_path):

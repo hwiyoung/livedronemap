@@ -34,7 +34,7 @@ class VueProR(BaseDrone):
             "sensor_width": 10.88,  # mm
             'focal_length': 0.013,  # m
             'gsd': 0.25,            # m
-            'ground_height': 363.7,   # m
+            'ground_height': 363.7,     # m, 363.7(asl)
             "R_CB": np.array([[0.996892729, -0.01561805212,	-0.0772072755],
                               [0.01841927538, 0.999192656, 0.03570387246],
                               [0.07658731773, -0.03701503292, 0.9963755668]], dtype=float)  # 191029

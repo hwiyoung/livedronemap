@@ -27,7 +27,7 @@ executor = ThreadPoolExecutor(2)
 from server.my_drones import VueProR
 my_drone = VueProR(pre_calibrated=False)
 
-height_threshold = 100
+height_threshold = 500
 
 def allowed_file(fname):
     return '.' in fname and fname.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
