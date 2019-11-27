@@ -27,7 +27,7 @@ executor = ThreadPoolExecutor(2)
 from server.my_drones import VueProR
 my_drone = VueProR(pre_calibrated=False)
 
-height_threshold = 500
+height_threshold = 100
 
 def allowed_file(fname):
     return '.' in fname and fname.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
@@ -66,6 +66,9 @@ def ldm_upload(project_id_str):
     :param project_id_str: project_id which local server assigned for each projects
     :return:
     """
+
+    f = open("log_processing_time.txt", "a")
+
     if request.method == 'POST':
         # Initialize variables
         project_path = os.path.join(app.config['UPLOAD_FOLDER'], project_id_str)
@@ -87,6 +90,8 @@ def ldm_upload(project_id_str):
                 file.save(os.path.join(project_path, fname_dict[key]))  # 클라이언트로부터 전송받은 파일을 저장한다.
             else:
                 return 'Failed to save the uploaded files'
+
+        start_time = time.time()
 
         # IPOD chain 1: System calibration
         parsed_eo = my_drone.preprocess_eo_file(os.path.join(project_path, fname_dict['eo']))
@@ -113,6 +118,10 @@ def ldm_upload(project_id_str):
             ground_height=my_drone.ipod_params['ground_height'],
             sensor_width=my_drone.ipod_params['sensor_width']
         )
+
+        cur_time = "%s\t%f\n" % (fname_dict['img'], time.time() - start_time)
+        f.write(cur_time)
+        print(cur_time)
 
         return 'Image upload and IPOD chain complete'
 

@@ -100,29 +100,12 @@ def rectify(project_path, img_fname, img_rectified_fname, eo, ground_height, sen
     print('resample')
     start_time = time.time()
     gray = resampleThermal(backProj_coords, boundary_rows, boundary_cols, converted_image)
-    # b, g, r, a = resample(backProj_coords, boundary_rows, boundary_cols, image)
     print("--- %s seconds ---" % (time.time() - start_time))
 
     print('Save the image in GeoTiff')
     start_time = time.time()
-    img_rectified_fname_kctm = img_rectified_fname.split('.')[0] + '_kctm.tif'      # EPSG: 5186
-    dst = os.path.join(project_path, img_rectified_fname_kctm)
-    createGeoTiffThermal(gray, bbox, gsd, boundary_rows, boundary_cols, dst)
-    # createGeoTiff(b, g, r, a, bbox, gsd, boundary_rows, boundary_cols, dst)
-    print("--- %s seconds ---" % (time.time() - start_time))
-
-    # GDAL warp to reproject from EPSG:5186 to EPSG:4326
-    print('GDAL Warp')
-    start_time = time.time()
-    gdal.Warp(
-        os.path.join('Z:/', img_rectified_fname),   # dst
-        # os.path.join('Orthophoto_result/', img_rectified_fname),   # dst
-        gdal.Open(os.path.join(project_path, img_rectified_fname_kctm)),                # src
-        format='GTiff',
-        srcSRS='EPSG:5186',
-        dstSRS='EPSG:3857'
-    )
-
+    # createGeoTiffThermal(gray, bbox, gsd, boundary_rows, boundary_cols, 'Orthophoto_result/' + img_rectified_fname)
+    createGeoTiffThermal(gray, bbox, gsd, boundary_rows, boundary_cols, 'Z:/' + img_rectified_fname)
     print("--- %s seconds ---" % (time.time() - start_time))
 
     print('*** Processing time per each image')
