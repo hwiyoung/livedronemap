@@ -35,16 +35,15 @@ def convertCoordinateSystem(eo):
     latlon2world = CoordinateTransformation(epsg4326, epsg3857)
 
     # Check the transformation for a point close to the centre of the projected grid
-    # The order of TransformPoint(Latitude, Longitude)
+    # The order of TransformPoint(Longitude, Latitude)
 
-    # yx = latlon2tm.TransformPoint(float(eo[1]), float(eo[0]))
-    # converted_eo = copy(eo)
-    # converted_eo[0] = yx[1]     # x
-    # converted_eo[1] = yx[0]     # y
-
-    xy = latlon2world.TransformPoint(float(eo[1]), float(eo[0]))
+    xy = latlon2tm.TransformPoint(float(eo[0]), float(eo[1]))
     converted_eo = copy(eo)
     converted_eo[:2] = xy[:2]
+
+    # xy = latlon2world.TransformPoint(float(eo[0]), float(eo[1]))
+    # converted_eo = copy(eo)
+    # converted_eo[:2] = xy[:2]
 
     return converted_eo
 

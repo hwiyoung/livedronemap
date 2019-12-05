@@ -27,6 +27,38 @@ def backProjection(coord, R, focal_length, pixel_size, image_size):
 
     return coord_out
 
+def backProjection_test(coord, R, focal_length, pixel_size, image_size):
+    coord_CCS_m = np.dot(R, coord)  # unit: m     3 x (row x col)
+    scale = (coord_CCS_m[2]) / (-focal_length)  # 1 x (row x col)
+    plane_coord_CCS = coord_CCS_m[0:2] / scale  # 2 x (row x col), unit: m
+
+    plane_coord_CCS[1] = -plane_coord_CCS[1]
+    x = plane_coord_CCS[0, :]  # 1 x (row x col)
+    y = -plane_coord_CCS[1, :]  # 1 x (row x col)
+    r = np.sqrt(np.sum(plane_coord_CCS ** 2, axis=0))  # 1 x (row x col)
+
+    # Convert CCS to Pixel Coordinate System
+    coord_CCS_px = plane_coord_CCS / pixel_size  # unit: px
+    # coord_CCS_px[1] = -coord_CCS_px[1]
+
+    cx_cy = np.array([-17.7231, -1.54285]).reshape((2, 1))
+    k1 = -0.0474604
+    k2 = 0.357853
+    p1 = -0.00591156
+    p2 = 0.00299468
+    b1 = 0.0938139
+    b2 = -3.0266
+    f = 751.27
+    coord_CCS_px_refine_x = x * (1 + k1 * (r ** 2) + k2 * (r ** 4)) + p1 * (r ** 2 + 2 * (x ** 2)) + 2 * p2 * x * y
+    coord_CCS_px_refine_y = y * (1 + k1 * (r ** 2) + k2 * (r ** 4)) + p2 * (r ** 2 + 2 * (y ** 2)) + 2 * p1 * x * y
+    coord_refine = np.array([coord_CCS_px_refine_x * f + coord_CCS_px_refine_x * b1 + coord_CCS_px_refine_y * b2,
+                             coord_CCS_px_refine_y * f]).reshape((2, 1))
+
+    # coord_out = image_size[::-1] / 2 + cx_cy + coord_CCS_px  # 2 x (row x col)
+    coord_out = image_size[::-1] / 2 + cx_cy + coord_refine  # 2 x (row x col)
+
+    return coord_out
+
 @jit(nopython=True)
 def resample(coord, boundary_rows, boundary_cols, image):
     # Define channels of an orthophoto
@@ -110,8 +142,8 @@ def createGeoTiffThermal(grey, boundary, gsd, rows, cols, dst):
 
     # Define the TM central coordinate system (EPSG 5186)
     srs = osr.SpatialReference()  # establish encoding
-    # srs.ImportFromEPSG(5186)
-    srs.ImportFromEPSG(3857)
+    srs.ImportFromEPSG(5186)
+    # srs.ImportFromEPSG(3857)
 
     dst_ds.SetProjection(srs.ExportToWkt())  # export coords to file
     dst_ds.GetRasterBand(1).WriteArray(grey)  # write gray-band to the raster
