@@ -25,7 +25,7 @@ app.config.from_object(config_flask.BaseConfig)
 executor = ThreadPoolExecutor(2)
 
 from server.my_drones import VueProR
-my_drone = VueProR(pre_calibrated=True)
+my_drone = VueProR(pre_calibrated=False)
 
 height_threshold = 100
 
