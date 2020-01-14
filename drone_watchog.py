@@ -148,9 +148,14 @@ class Handler(FileSystemEventHandler):
 
 
 if __name__ == '__main__':
+    if not (os.path.isdir(Config.DIRECTORY_TO_WATCH)):
+        os.mkdir(Config.DIRECTORY_TO_WATCH)
+        print("The folder is created")
+
     filelist = [f for f in os.listdir(Config.DIRECTORY_TO_WATCH)]
     for f in filelist:
         os.remove(Config.DIRECTORY_TO_WATCH + "/" + f)
     print('Removal is done!')
+
     w = Watcher(directory_to_watch=Config.DIRECTORY_TO_WATCH)
     w.run()

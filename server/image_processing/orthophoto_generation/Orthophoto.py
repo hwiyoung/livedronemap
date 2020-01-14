@@ -7,7 +7,7 @@ from server.image_processing.orthophoto_generation.ExifData import getExif, rest
 from server.image_processing.orthophoto_generation.EoData import convertCoordinateSystem, Rot3D
 from server.image_processing.orthophoto_generation.Boundary import boundary
 from server.image_processing.orthophoto_generation.BackprojectionResample import projectedCoord, backProjection, \
-    resample, createGeoTiff, resampleThermal, createGeoTiffThermal
+    resample, createGeoTiff, resampleThermal, createGeoTiffThermal, backProjection_test
 
 
 def export_bbox_to_wkt(bbox):
@@ -95,6 +95,7 @@ def rectify(project_path, img_fname, img_rectified_fname, eo, ground_height, sen
     print('backProjection')
     start_time = time.time()
     backProj_coords = backProjection(proj_coords, R, focal_length, pixel_size, image_size)
+    # backProj_coords = backProjection_test(proj_coords, R, focal_length, pixel_size, image_size)
     print("--- %s seconds ---" % (time.time() - start_time))
 
     print('resample')
@@ -104,9 +105,25 @@ def rectify(project_path, img_fname, img_rectified_fname, eo, ground_height, sen
 
     print('Save the image in GeoTiff')
     start_time = time.time()
-    # createGeoTiffThermal(gray, bbox, gsd, boundary_rows, boundary_cols, 'Orthophoto_result/' + img_rectified_fname)
-    createGeoTiffThermal(gray, bbox, gsd, boundary_rows, boundary_cols, 'Z:/' + img_rectified_fname)
+
+    img_rectified_fname_kctm = img_rectified_fname.split('.')[0] + '_kctm.tif'  # EPSG: 5186
+    dst = os.path.join(project_path, img_rectified_fname_kctm)
+    createGeoTiffThermal(gray, bbox, gsd, boundary_rows, boundary_cols, dst)
+    # createGeoTiffThermal(gray, bbox, gsd, boundary_rows, boundary_cols, 'Z:/' + img_rectified_fname)
     print("--- %s seconds ---" % (time.time() - start_time))
+
+
+    # GDAL warp to reproject from EPSG:5186 to EPSG:3857
+    print('GDAL Warp')
+    start_time = time.time()
+    gdal.Warp(
+        # os.path.join('Z:/', img_rectified_fname),   # dst
+        os.path.join('result/', img_rectified_fname),   # dst
+        gdal.Open(os.path.join(project_path, img_rectified_fname_kctm)),                # src
+        format='GTiff',
+        srcSRS='EPSG:5186',
+        dstSRS='EPSG:3857'
+    )
 
     print('*** Processing time per each image')
     print("--- %s seconds ---" % (time.time() - start_record))

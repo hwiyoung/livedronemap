@@ -99,7 +99,15 @@ def ldm_upload(project_id_str):
                   parsed_eo[2] - my_drone.ipod_params["ground_height"], " m")
             return "The height of the image is too low"
         print("The height of the image: ", parsed_eo[2] - my_drone.ipod_params["ground_height"], " m")
+
+        img_path = os.path.join(project_path, fname_dict['img'])
+        image = cv2.imread(img_path, -1)
+        if image is None:
+            print("The image is broken")
+            return "The image is broken"
+
         if not my_drone.pre_calibrated:
+            print('System calibration')
             OPK = calibrate(parsed_eo[3], parsed_eo[4], parsed_eo[5], my_drone.ipod_params["R_CB"])
             parsed_eo[3:] = OPK
 
