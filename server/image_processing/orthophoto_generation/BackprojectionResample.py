@@ -101,7 +101,9 @@ def resampleThermal(coord, boundary_rows, boundary_cols, image):
 
 def createGeoTiffThermal(grey, boundary, gsd, rows, cols, dst):
     # https://stackoverflow.com/questions/33537599/how-do-i-write-create-a-geotiff-rgb-image-file-in-python
-    geotransform = (boundary[0], gsd, 0, boundary[3], 0, -gsd)
+    # geotransform = (boundary[0], gsd, 0, boundary[3], 0, -gsd)
+    geotransform = (boundary[0, 0], gsd, 0, boundary[3, 0], 0, -gsd)
+    print(geotransform)
 
     # create the 4-band(RGB+Alpha) raster file
     # dst_ds = gdal.GetDriverByName('GTiff').Create(dst + '.tif', cols, rows, 1, gdal.GDT_Float32)

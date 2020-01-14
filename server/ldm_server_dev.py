@@ -68,6 +68,7 @@ def ldm_upload(project_id_str):
     """
 
     f = open("log_processing_time.txt", "a")
+    start_time = time.time()
 
     if request.method == 'POST':
         # Initialize variables
@@ -90,8 +91,6 @@ def ldm_upload(project_id_str):
                 file.save(os.path.join(project_path, fname_dict[key]))  # 클라이언트로부터 전송받은 파일을 저장한다.
             else:
                 return 'Failed to save the uploaded files'
-
-        start_time = time.time()
 
         # IPOD chain 1: System calibration
         parsed_eo = my_drone.preprocess_eo_file(os.path.join(project_path, fname_dict['eo']))
