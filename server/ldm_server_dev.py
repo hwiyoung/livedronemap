@@ -24,17 +24,15 @@ from server.image_processing.orthophoto_generation.Boundary import pcs2ccs, proj
 from server.image_processing.orthophoto_generation.EoData import Rot3D, latlon2tmcentral, tmcentral2latlon
 from server.image_processing.orthophoto_generation.ExifData import getExif, restoreOrientation
 
-import matplotlib.pyplot as plt
+# # socket for sending
+TCP_IP = '192.168.0.24'
+TCP_PORT = 5010 #18080
 
-# # # socket for sending
-# TCP_IP = '192.168.0.24'
-# TCP_PORT = 5010 #18080
-#
-# s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-#
-# s.connect((TCP_IP, TCP_PORT))
-# print('connected!')
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+s.connect((TCP_IP, TCP_PORT))
+print('connected!')
 
 
 # Initialize flask
@@ -57,7 +55,7 @@ height_threshold = 100
 # my_drone = FlirDuoProR_optical(pre_calibrated=True)
 
 from server.my_drones import SONY_ILCE_QX1
-my_drone = SONY_ILCE_QX1(pre_calibrated=False)
+my_drone = SONY_ILCE_QX1(pre_calibrated=True)
 
 # from server.my_drones import DJIMavic
 # my_drone = DJIMavic(pre_calibrated=True)
@@ -155,100 +153,100 @@ def ldm_upload(project_id_str):
         bbox_wkt = 1
         if bbox_wkt is not None:
             detected_objects=[]
-            # # IPOD chain 3: Object detection
-            # imgencode = cv2.imread(project_path + '/' + fname_dict['img'])
+            # IPOD chain 3: Object detection
+            imgencode = cv2.imread(project_path + '/' + fname_dict['img'])
+
+            # 0. Extract EXIF data from a image
+            focal_length, orientation = getExif(project_path + '/' + fname_dict['img'])  # unit: m
+
+            # 1. Restore the image based on orientation information
+            imgencode_1 = restoreOrientation(imgencode, orientation)
             #
-            # # # 0. Extract EXIF data from a image
-            # # focal_length, orientation = getExif(project_path + '/' + fname_dict['img'])  # unit: m
-            # #
-            # # # 1. Restore the image based on orientation information
-            # # imgencode_1 = restoreOrientation(imgencode, orientation)
-            # #
-            # # # plt.imshow(imgencode_1)
-            # # # plt.show()
-            # #
-            # # cv2.imwrite('/home/innopam-ldm/PycharmProjects/livedronemap/encode.jpg', imgencode_1)
+            # # plt.imshow(imgencode_1)
+            # # plt.show()
+            #
+            # cv2.imwrite('/home/innopam-ldm/PycharmProjects/livedronemap/encode.jpg', imgencode_1)
             # imgencode_1 = imgencode
-            #
-            # print(project_path + '/' + fname_dict['img'])
-            # hei = imgencode_1.shape[0]
-            # wid = imgencode_1.shape[1]
-            # print("hei wid",hei,wid)
-            # stringData = imgencode_1.tostring()
-            #
-            # s.send(str(hei).encode().ljust(16))
-            # s.send(str(wid).encode().ljust(16))
-            # s.send(stringData)
-            # print("start sending")
-            #
-            # # Receiving Bbox info
-            # data_len = s.recv(16)
-            #
-            # x1 = json.loads(s.recv(int(data_len)))
-            # y1 = json.loads(s.recv(int(data_len)))
-            # x2 = json.loads(s.recv(int(data_len)))
-            # y2 = json.loads(s.recv(int(data_len)))
-            # class_id = json.loads(s.recv(int(data_len)))
-            #
-            # print("BBox info received!!!!!")
-            #
-            # for i in range(len(x1)):
-            #     # bbox_px = np.array([[x1[i], x2[i], x2[i], x1[i]],
-            #     #                     [y2[i], y2[i], y1[i], y1[i]]])
-            #     bbox_px = np.array([[x1[i], x2[i], x2[i], x1[i]],
-            #                         [y1[i], y1[i], y2[i], y2[i]]])
-            #
-            #     tm_eo = latlon2tmcentral(parsed_eo)
-            #     R_GC = Rot3D(tm_eo)
-            #     R_CG = R_GC.transpose()
-            #
-            #     print("bbox is like this", bbox_px)
-            #
-            #     # Convert pixel coordinate system to camera coordinate system
-            #     bbox_camera = pcs2ccs(bbox_px, hei, wid,
-            #                           my_drone.ipod_params['sensor_width'] / wid,
-            #                           my_drone.ipod_params['focal_length'] * 1000)  # shape: 3 x bbox_point
-            #     # input params unit: px, px, px, mm/px, mm
-            #
-            #     # Project camera coordinates to ground coordinates
-            #     proj_coordinates = projection(bbox_camera, tm_eo, R_CG,
-            #                                   my_drone.ipod_params['ground_height'])
-            #
-            #     bbox_ground1 = tmcentral2latlon(proj_coordinates[:, 0])
-            #     bbox_ground2 = tmcentral2latlon(proj_coordinates[:, 1])
-            #     bbox_ground3 = tmcentral2latlon(proj_coordinates[:, 2])
-            #     bbox_ground4 = tmcentral2latlon(proj_coordinates[:, 3])
-            #
-            #     print(bbox_ground1, '\n', bbox_ground2, '\n', bbox_ground3, '\n', bbox_ground4)
-            #
-            #     bboxcenter0 = np.mean(np.array([bbox_ground1[0], bbox_ground2[0], bbox_ground3[0], bbox_ground4[0]]))
-            #     bboxcenter1 = np.mean(np.array([bbox_ground1[1], bbox_ground2[1], bbox_ground3[1], bbox_ground4[1]]))
-            #     detected_objects_single = {
-            #         "number": 0,
-            #         "ortho_detected_object_id": None,
-            #         "drone_project_id": None,
-            #         "ortho_image_id": None,
-            #         "user_id": None,
-            #         "object_type": "1",
-            #         "geometry": "POINT (%f %f)" % (bboxcenter0, bboxcenter1),
-            #         "detected_date": "20180929203800",
-            #         "bounding_box_geometry": "POLYGON ((%f %f, %f %f, %f %f, %f %f, %f %f))"
-            #                                  % (bbox_ground1[0], bbox_ground1[1],
-            #                                     bbox_ground2[0], bbox_ground2[1],
-            #                                     bbox_ground3[0], bbox_ground3[1],
-            #                                     bbox_ground4[0], bbox_ground4[1],
-            #                                     bbox_ground1[0], bbox_ground1[1]),
-            #         "major_axis": None,  # 30,
-            #         "minor_axis": None,  # 50,
-            #         "orientation": None,  # 260,
-            #         "bounding_box_area": None,  # 150,
-            #         "length": None,  # 30,
-            #         "speed": None,  # 12,
-            #         "insert_date": None}
-            #
-            #     detected_objects.append(detected_objects_single)
-            # if x1[0] == 0 and x2[0] == 0:
-            #     detected_objects=[]
+
+            print(project_path + '/' + fname_dict['img'])
+            hei = imgencode_1.shape[0]
+            wid = imgencode_1.shape[1]
+            print("hei wid",hei,wid)
+            stringData = imgencode_1.tostring()
+
+            s.send(str(hei).encode().ljust(16))
+            s.send(str(wid).encode().ljust(16))
+            s.send(stringData)
+            print("start sending")
+
+            # Receiving Bbox info
+            data_len = s.recv(16)
+
+            x1 = json.loads(s.recv(int(data_len)))
+            y1 = json.loads(s.recv(int(data_len)))
+            x2 = json.loads(s.recv(int(data_len)))
+            y2 = json.loads(s.recv(int(data_len)))
+            class_id = json.loads(s.recv(int(data_len)))
+
+            print("BBox info received!!!!!")
+
+            for i in range(len(x1)):
+                # bbox_px = np.array([[x1[i], x2[i], x2[i], x1[i]],
+                #                     [y2[i], y2[i], y1[i], y1[i]]])
+                bbox_px = np.array([[x1[i], x2[i], x2[i], x1[i]],
+                                    [y1[i], y1[i], y2[i], y2[i]]])
+
+                tm_eo = latlon2tmcentral(parsed_eo)
+                R_GC = Rot3D(tm_eo)
+                R_CG = R_GC.transpose()
+
+                print("bbox is like this", bbox_px)
+
+                # Convert pixel coordinate system to camera coordinate system
+                bbox_camera = pcs2ccs(bbox_px, hei, wid,
+                                      my_drone.ipod_params['sensor_width'] / wid,
+                                      my_drone.ipod_params['focal_length'] * 1000)  # shape: 3 x bbox_point
+                # input params unit: px, px, px, mm/px, mm
+
+                # Project camera coordinates to ground coordinates
+                proj_coordinates = projection(bbox_camera, tm_eo, R_CG,
+                                              my_drone.ipod_params['ground_height'])
+
+                bbox_ground1 = tmcentral2latlon(proj_coordinates[:, 0])
+                bbox_ground2 = tmcentral2latlon(proj_coordinates[:, 1])
+                bbox_ground3 = tmcentral2latlon(proj_coordinates[:, 2])
+                bbox_ground4 = tmcentral2latlon(proj_coordinates[:, 3])
+
+                print(bbox_ground1, '\n', bbox_ground2, '\n', bbox_ground3, '\n', bbox_ground4)
+
+                bboxcenter0 = np.mean(np.array([bbox_ground1[0], bbox_ground2[0], bbox_ground3[0], bbox_ground4[0]]))
+                bboxcenter1 = np.mean(np.array([bbox_ground1[1], bbox_ground2[1], bbox_ground3[1], bbox_ground4[1]]))
+                detected_objects_single = {
+                    "number": 0,
+                    "ortho_detected_object_id": None,
+                    "drone_project_id": None,
+                    "ortho_image_id": None,
+                    "user_id": None,
+                    "object_type": "1",
+                    "geometry": "POINT (%f %f)" % (bboxcenter0, bboxcenter1),
+                    "detected_date": "20180929203800",
+                    "bounding_box_geometry": "POLYGON ((%f %f, %f %f, %f %f, %f %f, %f %f))"
+                                             % (bbox_ground1[0], bbox_ground1[1],
+                                                bbox_ground2[0], bbox_ground2[1],
+                                                bbox_ground3[0], bbox_ground3[1],
+                                                bbox_ground4[0], bbox_ground4[1],
+                                                bbox_ground1[0], bbox_ground1[1]),
+                    "major_axis": None,  # 30,
+                    "minor_axis": None,  # 50,
+                    "orientation": None,  # 260,
+                    "bounding_box_area": None,  # 150,
+                    "length": None,  # 30,
+                    "speed": None,  # 12,
+                    "insert_date": None}
+
+                detected_objects.append(detected_objects_single)
+            if x1[0] == 0 and x2[0] == 0:
+                detected_objects=[]
 
             inference_time = time.time()
 
